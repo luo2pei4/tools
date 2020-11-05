@@ -200,7 +200,7 @@ func LoadXML(xmlDec *xml.Decoder) (root *Node, err error) {
 		case xml.ProcInst:
 		case xml.Directive:
 		default:
-			panic(errors.New("parse failed"))
+			return nil, errors.New("loader.LoadXML, xml error")
 		}
 	}
 
