@@ -18,7 +18,7 @@ type Node struct {
 	childNodes []*Node           // 子节点切片
 }
 
-// PrintNode 在控制台输出节点左右信息
+// PrintNode 在控制台输出节点所有信息
 func (node *Node) PrintNode() {
 
 	var attrbutes string = ""
