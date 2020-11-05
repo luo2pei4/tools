@@ -53,7 +53,7 @@ func (node *Node) PrintNode() {
 	}
 }
 
-// stack 深度为10的栈，用来压入XML的标签名称。
+// stack 用来压入XML的节点。
 type stack struct {
 	MaxTop int     // 栈顶最大值
 	Top    int     // 栈顶标识
