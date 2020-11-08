@@ -1,0 +1,19 @@
+[globalLogConfig]
+    logLevel          = "info" # info/warn/error
+    infoFile          = "d:\\Temp\\info.log" # can not be empty
+    warnFile          = "d:\\Temp\\warn.log" # can not be empty
+    errorFile         = "d:\\Temp\\error.log" # can not be empty
+    messageKey        = "msg"
+    levelKey          = "level"
+    timeKey           = "time"
+    nameKey           = "logger"
+    callerKey         = "file"
+    stacktraceKey     = "stacktrace"
+    maxSize           = 5 # MB
+    maxAge            = 10 # Days
+    maxBackups        = 10
+    compress          = false
+    stdOutput         = true
+    openCaller        = true
+    openFileAndRownum = true
+
