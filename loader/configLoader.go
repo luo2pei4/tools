@@ -28,7 +28,7 @@ func GetTable(key string) (table *toml.Tree, err error) {
 
 	if configuration == nil {
 
-		return nil, errors.New("config info was not loaded")
+		return nil, errors.New("config info was not loaded, call LoadConfig first")
 	}
 
 	if strings.TrimSpace(key) == "" {
