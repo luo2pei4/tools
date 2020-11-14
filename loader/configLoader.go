@@ -61,3 +61,51 @@ func GetValue(key string) (value interface{}, err error) {
 
 	return
 }
+
+// IntValue get int value
+func IntValue(config *toml.Tree, key string, defaultValue int) int {
+
+	v := config.Get(key)
+
+	if v != nil {
+
+		if value, ok := v.(int); ok {
+
+			return value
+		}
+	}
+
+	return defaultValue
+}
+
+// StringValue get string value
+func StringValue(config *toml.Tree, key string, defaultValue string) string {
+
+	v := config.Get(key)
+
+	if v != nil {
+
+		if value, ok := v.(string); ok {
+
+			return value
+		}
+	}
+
+	return defaultValue
+}
+
+// BoolValue get boolean value
+func BoolValue(config *toml.Tree, key string, defaultValue bool) bool {
+
+	v := config.Get(key)
+
+	if v != nil {
+
+		if value, ok := v.(bool); ok {
+
+			return value
+		}
+	}
+
+	return defaultValue
+}

@@ -6,7 +6,6 @@ import (
 	"tools/loader"
 
 	"github.com/natefinch/lumberjack"
-	"github.com/pelletier/go-toml"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -49,9 +48,9 @@ func InitLogger() (success bool, err error) {
 		return false, err
 	}
 
-	level = stringValue(config, logLevel, "info")
+	level = loader.StringValue(config, logLevel, "info")
 
-	infoFileName := stringValue(config, infoFile, "")
+	infoFileName := loader.StringValue(config, infoFile, "")
 
 	// info日志文件不能为空
 	if infoFileName == "" {
@@ -59,7 +58,7 @@ func InitLogger() (success bool, err error) {
 		return false, errors.New("config information 'infoFile' can not be empty")
 	}
 
-	warnFileName := stringValue(config, warnFile, "")
+	warnFileName := loader.StringValue(config, warnFile, "")
 
 	// warn日志文件不能为空
 	if warnFileName == "" {
@@ -67,7 +66,7 @@ func InitLogger() (success bool, err error) {
 		return false, errors.New("config information 'warnFile' can not be empty")
 	}
 
-	errorFileName := stringValue(config, errorFile, "")
+	errorFileName := loader.StringValue(config, errorFile, "")
 
 	// warn日志文件不能为空
 	if errorFileName == "" {
@@ -76,37 +75,37 @@ func InitLogger() (success bool, err error) {
 	}
 
 	infoHook := lumberjack.Logger{
-		Filename:   infoFileName,                       // 文件保存路径
-		MaxSize:    intValue(config, maxSize, 5),       // 每个日志的文件大小, 单位: MB
-		MaxAge:     intValue(config, maxAge, 10),       // 日志文件保存天数
-		MaxBackups: intValue(config, maxBackups, 100),  // 日志文件最多多少个备份
-		Compress:   boolValue(config, compress, false), // 是否压缩
+		Filename:   infoFileName,                              // 文件保存路径
+		MaxSize:    loader.IntValue(config, maxSize, 5),       // 每个日志的文件大小, 单位: MB
+		MaxAge:     loader.IntValue(config, maxAge, 10),       // 日志文件保存天数
+		MaxBackups: loader.IntValue(config, maxBackups, 100),  // 日志文件最多多少个备份
+		Compress:   loader.BoolValue(config, compress, false), // 是否压缩
 	}
 
 	warnHook := lumberjack.Logger{
 		Filename:   warnFileName,
-		MaxSize:    intValue(config, maxSize, 5),
-		MaxAge:     intValue(config, maxAge, 10),
-		MaxBackups: intValue(config, maxBackups, 100),
-		Compress:   boolValue(config, compress, false),
+		MaxSize:    loader.IntValue(config, maxSize, 5),
+		MaxAge:     loader.IntValue(config, maxAge, 10),
+		MaxBackups: loader.IntValue(config, maxBackups, 100),
+		Compress:   loader.BoolValue(config, compress, false),
 	}
 
 	errorHook := lumberjack.Logger{
 		Filename:   errorFileName,
-		MaxSize:    intValue(config, maxSize, 5),
-		MaxAge:     intValue(config, maxAge, 10),
-		MaxBackups: intValue(config, maxBackups, 100),
-		Compress:   boolValue(config, compress, false),
+		MaxSize:    loader.IntValue(config, maxSize, 5),
+		MaxAge:     loader.IntValue(config, maxAge, 10),
+		MaxBackups: loader.IntValue(config, maxBackups, 100),
+		Compress:   loader.BoolValue(config, compress, false),
 	}
 
 	encoderConfig := zapcore.EncoderConfig{
 
-		MessageKey:     stringValue(config, messageKey, "msg"),
-		LevelKey:       stringValue(config, levelKey, "level"),
-		TimeKey:        stringValue(config, timeKey, "time"),
-		NameKey:        stringValue(config, nameKey, "logger"),
-		CallerKey:      stringValue(config, callerKey, "file"),
-		StacktraceKey:  stringValue(config, stacktraceKey, "stacktrace"),
+		MessageKey:     loader.StringValue(config, messageKey, "msg"),
+		LevelKey:       loader.StringValue(config, levelKey, "level"),
+		TimeKey:        loader.StringValue(config, timeKey, "time"),
+		NameKey:        loader.StringValue(config, nameKey, "logger"),
+		CallerKey:      loader.StringValue(config, callerKey, "file"),
+		StacktraceKey:  loader.StringValue(config, stacktraceKey, "stacktrace"),
 		LineEnding:     zapcore.DefaultLineEnding,
 		EncodeLevel:    zapcore.LowercaseLevelEncoder,
 		EncodeTime:     zapcore.RFC3339NanoTimeEncoder,
@@ -116,7 +115,7 @@ func InitLogger() (success bool, err error) {
 	}
 
 	lv := zapcore.Level(zapcore.DebugLevel)
-	levelStr := stringValue(config, logLevel, "info")
+	levelStr := loader.StringValue(config, logLevel, "info")
 	lv.Set(levelStr)
 
 	atomicLevel := zap.NewAtomicLevel()
@@ -126,7 +125,7 @@ func InitLogger() (success bool, err error) {
 	warnWrites := []zapcore.WriteSyncer{zapcore.AddSync(&warnHook)}
 	errorWrites := []zapcore.WriteSyncer{zapcore.AddSync(&errorHook)}
 
-	isStdOutput := boolValue(config, stdOutput, false)
+	isStdOutput := loader.BoolValue(config, stdOutput, false)
 
 	// 在Console上输出
 	if isStdOutput {
@@ -143,7 +142,7 @@ func InitLogger() (success bool, err error) {
 
 	// 开启开发模式, 堆栈跟踪
 	var caller zap.Option
-	openCaller := boolValue(config, openCaller, false)
+	openCaller := loader.BoolValue(config, openCaller, false)
 
 	if openCaller {
 
@@ -152,7 +151,7 @@ func InitLogger() (success bool, err error) {
 
 	// 开启文件及行号
 	var development zap.Option
-	openFileAndRownum := boolValue(config, openFileAndRownum, false)
+	openFileAndRownum := loader.BoolValue(config, openFileAndRownum, false)
 
 	if openFileAndRownum {
 
@@ -164,51 +163,6 @@ func InitLogger() (success bool, err error) {
 	errorLogger = zap.New(errorCore, caller, development)
 
 	return true, nil
-}
-
-func intValue(config *toml.Tree, key string, defaultValue int) int {
-
-	v := config.Get(key)
-
-	if v != nil {
-
-		if value, ok := v.(int); ok {
-
-			return value
-		}
-	}
-
-	return defaultValue
-}
-
-func stringValue(config *toml.Tree, key string, defaultValue string) string {
-
-	v := config.Get(key)
-
-	if v != nil {
-
-		if value, ok := v.(string); ok {
-
-			return value
-		}
-	}
-
-	return defaultValue
-}
-
-func boolValue(config *toml.Tree, key string, defaultValue bool) bool {
-
-	v := config.Get(key)
-
-	if v != nil {
-
-		if value, ok := v.(bool); ok {
-
-			return value
-		}
-	}
-
-	return defaultValue
 }
 
 // Info 写info级别日志
