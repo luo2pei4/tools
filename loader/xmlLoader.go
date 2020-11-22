@@ -148,7 +148,7 @@ func LoadXML(xmlDec *xml.Decoder) (root *Node, err error) {
 
 				root.name = name
 				root.attr = attr
-				root.level = s.Top
+				root.level = s.Top + 1
 				root.childNodes = make([]*Node, 0)
 
 				s.push(root)
@@ -158,7 +158,7 @@ func LoadXML(xmlDec *xml.Decoder) (root *Node, err error) {
 				node = &Node{
 					name:       name,
 					attr:       attr,
-					level:      s.Top,
+					level:      s.Top + 1,
 					childNodes: make([]*Node, 0),
 				}
 
