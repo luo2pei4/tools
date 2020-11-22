@@ -78,7 +78,7 @@ func CreateLevelMap(node *Node) {
 // CreateNodeStruct 创建结构体
 func CreateNodeStruct() {
 
-	file, err := os.OpenFile("D:\\Temp\\xmlnodes.go", os.O_WRONLY|os.O_CREATE, 0666)
+	file, err := os.OpenFile("xmlnodes.go", os.O_WRONLY|os.O_CREATE, 0666)
 	defer file.Close()
 
 	if err != nil {
