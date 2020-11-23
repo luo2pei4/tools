@@ -108,7 +108,7 @@ func CreateNodeStruct() {
 					}
 
 					wr.WriteString("type " + key + " struct {\n")
-
+					wr.WriteString("    XMLName xml.Name `xml:\"" + key + "\"`\n")
 					nextLevelLabelMap := Levelmap[i+1]
 
 					for hlkey := range nextLevelLabelMap {
@@ -119,17 +119,17 @@ func CreateNodeStruct() {
 
 							if temp.isRepeat {
 
-								wr.WriteString("    " + hlkey + "List []" + hlkey + "\n")
+								wr.WriteString("    " + hlkey + "List []" + hlkey + " `xml:\"" + hlkey + "\"`\n")
 
 							} else {
 
 								if temp.hasChildNode {
 
-									wr.WriteString("    " + hlkey + " " + hlkey + "\n")
+									wr.WriteString("    " + hlkey + " " + hlkey + " `xml:\"" + hlkey + "\"`\n")
 
 								} else {
 
-									wr.WriteString("    " + hlkey + " string\n")
+									wr.WriteString("    " + hlkey + " string `xml:\"" + hlkey + "\"`\n")
 								}
 
 							}
