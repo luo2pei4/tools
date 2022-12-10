@@ -148,20 +148,17 @@ func (fs *Fstab) GetRecordByMountpoint(mp string) (Record, error) {
 }
 
 // ReplaceContentByMountpoint replace the content of specified record
-func (fs *Fstab) ReplaceContentByMountpoint(record Record) error {
+func (fs *Fstab) ReplaceContentByMountpoint(record *Record) error {
 
 	fs.Lock()
 	defer fs.Unlock()
 
-	var rawLineNo int
+	var (
+		rawLineNo int
+	)
 
 	for _, r := range fs.Records {
 		if record.Mountpoint == r.Mountpoint {
-			r.Device = record.Device
-			r.FsType = record.FsType
-			r.Options = record.Options
-			r.Dump = record.Dump
-			r.Pass = record.Pass
 			rawLineNo = r.RawLineNo
 			break
 		}
@@ -182,12 +179,19 @@ func (fs *Fstab) ReplaceContentByMountpoint(record Record) error {
 		strconv.Itoa(record.Dump),
 		strconv.Itoa(record.Pass),
 	}
-	fs.RawLines[rawLineNo] = strings.Join(items, " ")
-	content := strings.Join(fs.RawLines, "\n")
+	// use temp parameters
+	tempLines := make([]string, len(fs.RawLines))
+	copy(tempLines, fs.RawLines)
+	tempLines[rawLineNo] = strings.Join(items, " ")
+	content := strings.Join(tempLines, "\n")
 
 	if err := ioutil.WriteFile(DefaultFstabPath, []byte(content), 0644); err != nil {
 		return err
 	}
+
+	// after the file successfully written, save the newest value in rom
+	fs.Records[rawLineNo] = record
+	fs.RawLines[rawLineNo] = tempLines[rawLineNo]
 
 	return nil
 }
