@@ -126,10 +126,7 @@ func save(config *SambaConfig) error {
 	// TODO file validation
 
 	// rename file
-	if err := os.Rename("smb.conf.temp", config.FilePath); err != nil {
-		return err
-	}
-	return nil
+	return os.Rename("smb.conf.temp", config.FilePath)
 }
 
 // ################################# section operations #################################
@@ -158,21 +155,7 @@ func (sc *SambaConfig) DelSection(sname string) error {
 	return save(sc)
 }
 
-func (sc *SambaConfig) UpdSection(section *Section) error {
-	// check exist
-	if _, ok := sc.Sections[section.Name]; !ok {
-		return fmt.Errorf("section '%s' does not exist", section.Name)
-	}
-	// check params exist
-	if len(section.Params) == 0 {
-		return errors.New("params cannot be empty")
-	}
-	// update section
-	sc.Sections[section.Name] = section
-	return save(sc)
-}
-
-func (sc *SambaConfig) GetSection(sname string) (*Section, error) {
+func getSection(sc *SambaConfig, sname string) (*Section, error) {
 	if len(strings.TrimSpace(sname)) == 0 {
 		return nil, fmt.Errorf("invalid parameter, section name: '%s'", sname)
 	}
@@ -187,9 +170,9 @@ func (sc *SambaConfig) GetSection(sname string) (*Section, error) {
 // ################################# param operations #################################
 
 func (sc *SambaConfig) AddParam(sname, key, value string) error {
-	section, ok := sc.Sections[sname]
-	if !ok {
-		return fmt.Errorf("section '%s' does not exist", sname)
+	section, err := getSection(sc, sname)
+	if err != nil {
+		return err
 	}
 	param := &Param{Key: key, Value: value}
 	section.Params[len(section.Params)] = param
@@ -197,9 +180,9 @@ func (sc *SambaConfig) AddParam(sname, key, value string) error {
 }
 
 func (sc *SambaConfig) DelParamByKey(sname, key string) error {
-	section, ok := sc.Sections[sname]
-	if !ok {
-		return fmt.Errorf("section '%s' does not exist", sname)
+	section, err := getSection(sc, sname)
+	if err != nil {
+		return err
 	}
 	var keyExist bool
 	for index, param := range section.Params {
@@ -215,9 +198,9 @@ func (sc *SambaConfig) DelParamByKey(sname, key string) error {
 }
 
 func (sc *SambaConfig) DelParamByKeyAndValue(sname, key, value string) error {
-	section, ok := sc.Sections[sname]
-	if !ok {
-		return fmt.Errorf("section '%s' does not exist", sname)
+	section, err := getSection(sc, sname)
+	if err != nil {
+		return err
 	}
 	var keyExist bool
 	for index, param := range section.Params {
@@ -233,9 +216,9 @@ func (sc *SambaConfig) DelParamByKeyAndValue(sname, key, value string) error {
 }
 
 func (sc *SambaConfig) UpdParamByKey(sname, key, value string) error {
-	section, ok := sc.Sections[sname]
-	if !ok {
-		return fmt.Errorf("section '%s' does not exist", sname)
+	section, err := getSection(sc, sname)
+	if err != nil {
+		return err
 	}
 	var keyExist bool
 	for _, param := range section.Params {
@@ -251,9 +234,9 @@ func (sc *SambaConfig) UpdParamByKey(sname, key, value string) error {
 }
 
 func (sc *SambaConfig) UpdParamByKeyAndValue(sname, key, oldValue, newValue string) error {
-	section, ok := sc.Sections[sname]
-	if !ok {
-		return fmt.Errorf("section '%s' does not exist", sname)
+	section, err := getSection(sc, sname)
+	if err != nil {
+		return err
 	}
 	var keyExist bool
 	for _, param := range section.Params {
