@@ -34,16 +34,6 @@ var (
 	paramReg   = regexp.MustCompile(`\s*.+=.*`)
 )
 
-func canBeIgnored(line string) bool {
-	line = strings.TrimSpace(line)
-	if len(line) == 0 ||
-		strings.HasPrefix(line, "#") ||
-		strings.HasPrefix(line, ";") {
-		return true
-	}
-	return false
-}
-
 func LoadConfigFile(path string) (*SambaConfig, error) {
 	// open smb.conf file
 	reader, err := os.Open(path)
@@ -66,6 +56,12 @@ func LoadConfigFile(path string) (*SambaConfig, error) {
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
+		// check commented or blank line
+		if len(line) == 0 ||
+			strings.HasPrefix(line, "#") ||
+			strings.HasPrefix(line, ";") {
+			continue
+		}
 		// section
 		if sectionReg.MatchString(line) {
 			sectionName = line[1 : len(line)-1]
@@ -92,16 +88,19 @@ func LoadConfigFile(path string) (*SambaConfig, error) {
 
 type sectionList []*Section
 
+// implements interface sort.Interface
 func (s sectionList) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 func (s sectionList) Len() int           { return len(s) }
 func (s sectionList) Less(i, j int) bool { return s[i].Order < s[j].Order }
 
+// save smb.conf file
 func save(config *SambaConfig) error {
 	// make slice
 	sections := make(sectionList, 0, len(config.Sections))
 	for _, section := range config.Sections {
 		sections = append(sections, section)
 	}
+	// sort by section order
 	sort.Sort(sections)
 
 	var builder strings.Builder
@@ -123,7 +122,7 @@ func save(config *SambaConfig) error {
 		return err
 	}
 
-	// TODO file validation
+	// TODO file validation, call testparm
 
 	// rename file
 	return os.Rename("smb.conf.temp", config.FilePath)
