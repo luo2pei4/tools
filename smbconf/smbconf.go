@@ -174,7 +174,7 @@ func (sc *SambaConfig) AddParam(sname, key, value string) error {
 		return err
 	}
 	param := &Param{Key: key, Value: value}
-	section.Params[len(section.Params)] = param
+	section.Params = append(section.Params, param)
 	return save(sc)
 }
 
@@ -184,12 +184,15 @@ func (sc *SambaConfig) DelParamByKey(sname, key string) error {
 		return err
 	}
 	var keyExist bool
-	for index, param := range section.Params {
+	params := make([]*Param, 0, len(section.Params))
+	for _, param := range section.Params {
 		if param.Key == key {
-			section.Params = append(section.Params[:index], section.Params[index+1:]...)
 			keyExist = true
+			continue
 		}
+		params = append(params, param)
 	}
+	section.Params = params
 	if !keyExist {
 		return fmt.Errorf("param '%s' in section '%s' does not exist", key, sname)
 	}
@@ -202,12 +205,15 @@ func (sc *SambaConfig) DelParamByKeyAndValue(sname, key, value string) error {
 		return err
 	}
 	var keyExist bool
-	for index, param := range section.Params {
+	params := make([]*Param, 0, len(section.Params))
+	for _, param := range section.Params {
 		if param.Key == key && param.Value == value {
-			section.Params = append(section.Params[:index], section.Params[index+1:]...)
 			keyExist = true
+			continue
 		}
+		params = append(params, param)
 	}
+	section.Params = params
 	if !keyExist {
 		return fmt.Errorf("param '%s' with value '%s' in section '%s' does not exist", key, value, sname)
 	}
