@@ -1,6 +1,6 @@
 module tools
 
-go 1.15
+go 1.21
 
 require (
 	github.com/natefinch/lumberjack v2.0.0+incompatible
